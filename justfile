@@ -26,6 +26,8 @@ php-fpm-ttrss: (build "php-fpm-ttrss")
 
 unbound: (build "unbound")
 
+systemd-journal-upload: (build "systemd-journal-upload")
+
 toolbox: (build "toolbox")
 
 toolbox-kdedev: (build "toolbox-kdedev")
