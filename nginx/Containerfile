@@ -52,7 +52,6 @@ dnf install -y \
     glibc-minimal-langpack \
     "${packages[@]}"
 
-
 # Additional packages to manually remove after the initial package installation:
 # - fedora-gpg-keys & fedora-repos: not needed after installation
 packages_remove+=(
