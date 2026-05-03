@@ -37,60 +37,16 @@ jobs:
       image: "quay.io/travier/podman-action" # zizmor: ignore[unpinned-images]
       options: "--security-opt=label=disable --privileged --user 0:0 --device=/dev/kvm --device=/dev/fuse"
     steps:
-      - name: "Fixup GitHub homedir"
-        run: mkdir -p /github/home/.docker/
-
       - name: "Checkout repo"
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
 
-      - name: "Build container image"
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
+      - name: "Build and push container image"
+        uses: ./.github/actions/build-push
         with:
-          context: ${{ env.NAME }}
-          image: ${{ env.NAME }}
-          tags: "latest"
-          containerfiles: ${{ env.NAME }}/Containerfile
-          layers: false
-          oci: true
-          # FIXME
-          extra-args: |
-            --skip-unused-stages=false
-            --security-opt=label=disable
-            --volume /__w/containerfiles/containerfiles:/run/src
-
-      - name: "Push to Container Registry"
-        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2
-        id: push
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
-        with:
-          username: ${{ secrets.BOT_USERNAME }}
-          password: ${{ secrets.BOT_SECRET }}
-          image: ${{ env.NAME }}
-          registry: ${{ env.REGISTRY }}
-          tags: "latest"
-          extra-args: |
-            --compression-format=zstd:chunked
-            --compression-level=19
-
-      - name: "Login to Container Registry"
-        uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
-        with:
+          name: ${{ env.NAME }}
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.BOT_USERNAME }}
           password: ${{ secrets.BOT_SECRET }}
-          auth_file_path: "/tmp/auth.json"
-
-      - name: "Install cosign"
-        uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
-
-      - name: "Sign container image"
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
-        run: |
-          cosign sign -y --key env://COSIGN_PRIVATE_KEY ${{ env.REGISTRY }}/${{ env.NAME }}@${{ steps.push.outputs.digest }}
-        env:
-          COSIGN_EXPERIMENTAL: false
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          cosign-private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
