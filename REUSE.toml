@@ -1,0 +1,12 @@
+version = 1
+
+[[annotations]]
+path = [
+    "README.md",
+    "*/README.md",
+    "quay.io-travier-containers.pub",
+]
+SPDX-FileCopyrightText = [
+    "Timothée Ravier <tim@siosm.fr>"
+]
+SPDX-License-Identifier = "CC0-1.0"

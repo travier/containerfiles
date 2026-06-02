@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Timothée Ravier <tim@siosm.fr>
+# SPDX-License-Identifier: MIT OR CC0-1.0
+
 podman_build_opts := "--skip-unused-stages=false --security-opt=label=disable"
 
 all:

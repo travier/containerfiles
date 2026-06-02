@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Timothée Ravier <tim@siosm.fr>
+# SPDX-License-Identifier: MIT OR CC0-1.0
+
 FROM registry.fedoraproject.org/fedora-minimal:43
 
 # Install php and required modules, remove unneeded packages and remove all SUID/SGID binaries
