@@ -118,6 +118,9 @@ dnf -y install \
   tmt \
   testing-farm
 
+dnf -y install --setopt=install_weak_deps=False \
+  packit
+
 dnf -y remove mlocate
 dnf clean all
 
