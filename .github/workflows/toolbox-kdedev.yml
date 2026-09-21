@@ -46,7 +46,7 @@ jobs:
           persist-credentials: false
 
       - name: "Build and push container image"
-        uses: ./.github/actions/build-push
+        uses: $/.github/actions/build-push
         with:
           name: ${{ env.NAME }}
           registry: ${{ env.REGISTRY }}
