@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Timothée Ravier <tim@siosm.fr>
 # SPDX-License-Identifier: MIT OR CC0-1.0
 
-FROM registry.fedoraproject.org/fedora-toolbox:44 as builder
+FROM registry.fedoraproject.org/fedora-toolbox:45 as builder
 
 # - Install common development tools
 # - Install all build deps for kdesrc-build (plasma only, no apps)
