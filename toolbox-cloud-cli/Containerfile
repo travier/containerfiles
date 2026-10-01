@@ -8,7 +8,7 @@ FROM registry.fedoraproject.org/fedora-toolbox:45 as builder
 # - Remove mlocate
 RUN <<EORUN
 set -euxo pipefail
-sed -i "s/enabled=1/enabled=0/" "/etc/yum.repos.d/fedora-cisco-openh264.repo"
+dnf config-manager disable fedora-cisco-openh264
 dnf -y update
 
 dnf -y install \
