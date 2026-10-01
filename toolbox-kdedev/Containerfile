@@ -39,7 +39,6 @@ dnf -y install \
   meson \
   pylint \
   python3-pip \
-  shfmt \
   source-foundry-hack-fonts \
   yamllint
 

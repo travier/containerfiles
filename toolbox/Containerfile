@@ -57,7 +57,6 @@ dnf -y install \
     python3-pip \
     python3-rust2rpm \
     ruff \
-    shfmt \
     source-foundry-hack-fonts \
     yamllint
 
