@@ -109,6 +109,11 @@ dnf -y install \
 dnf -y install \
   virt-install
 
+# Enable Terra community repository and install Typst
+dnf -y install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release terra-gpg-keys
+dnf -y install \
+    typst
+
 # Setup symlink for access to system libvirt
 ln -snf /run/host/run/libvirt /run/libvirt
 
