@@ -42,6 +42,10 @@ dnf -y install \
     zsh
 
 dnf -y install \
+    --exclude=gcc-c++,git-core,xsel \
+      helix
+
+dnf -y install \
     ShellCheck \
     black \
     clang-format \
