@@ -41,6 +41,12 @@ dnf -y install \
     zoxide \
     zsh
 
+# Install editors
+dnf -y install --setopt=install_weak_deps=False \
+      helix \
+      helix-parsers \
+      helix-themes
+
 dnf -y install \
     ShellCheck \
     black \
