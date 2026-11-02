@@ -3,133 +3,150 @@
 
 FROM registry.fedoraproject.org/fedora-toolbox:45 as builder
 
-# - Install common development tools
-# - Install gh (GitHub) cli
-# - Install build dependencies for some Rust applications
-# - Install virt-install
-# - Remove mlocate
 RUN <<EORUN
 set -euxo pipefail
+
+# Disable weak dependencies (recommends & suggests)
+dnf config-manager setopt install_weak_deps=0
+
+# Disable cisco-openh264 repo as we never want to use it
 dnf config-manager disable fedora-cisco-openh264
+
+# Setup testing-farm COPR
+dnf copr enable -y @testing-farm/stable
+dnf config-manager disable copr:copr.fedorainfracloud.org:group_testing-farm:stable
+
+# Setup Terra community repository
+dnf -y install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release terra-gpg-keys
+dnf config-manager disable terra
+
+# Packages to install
+packages=(
+
+# Editors
+helix
+helix-parsers
+helix-themes
+vim
+
+# Shell and related tools
+asciinema
+fd-find
+fzf
+host-spawn
+parallel
+ripgrep
+zoxide
+zsh
+
+# Development tools
+ShellCheck
+black
+clang-format
+flatpak-builder
+g++
+gcc
+gh
+git-absorb
+git-clang-format
+git-credential-libsecret
+git-delta
+git-filter-repo
+go
+intltool
+json-glib-devel
+just
+make
+meson
+pylint
+python3-dateparser
+python3-pip
+python3-rust2rpm
+reuse
+ruff
+source-foundry-hack-fonts
+yamllint
+
+# Fedora packaging tools
+copr-cli
+createrepo_c
+fedora-license-data
+fedora-packager
+fedora-packager-kerberos
+fedora-repoquery
+fedora-repos-rawhide
+fedora-review
+fedpkg
+fedpkg-completion
+license-validate
+licensecheck
+rpmautospec
+rpmdistro-repoquery
+rust2rpm+ingredients
+rust2rpm-helper
+
+# Other tools
+bind-utils
+erofs-utils
+inotify-tools
+jq
+pwgen
+restic
+socat
+sqlite
+
+# CoreOS tools
+butane
+coreos-installer
+ignition-validate
+
+# Website / jekyll tools
+ImageMagick
+brotli
+dejavu-sans-fonts
+dejavu-sans-mono-fonts
+graphviz
+npm
+qrencode
+ruby
+ruby-devel
+rubygem-bundler
+
+# Build dependencies for some Rust applications
+openssl-devel
+perl-File-Compare
+perl-FindBin
+perl-IPC-Cmd
+
+# virt-install for libvirt
+virt-install
+)
+
+packages_terra=(
+typst
+typst-bash-completion
+typst-zsh-completion
+)
+
+packages_testing_farm=(
+# Tools for CI
+packit
+testing-farm
+tmt
+)
+
+# Update all packages
 dnf -y update
 
-dnf copr enable -y @testing-farm/stable
-
-dnf -y install \
-    asciinema \
-    bind-utils \
-    fd-find \
-    fzf \
-    gh \
-    git-absorb \
-    git-credential-libsecret \
-    git-delta \
-    git-filter-repo \
-    host-spawn \
-    inotify-tools \
-    jq \
-    just \
-    make \
-    parallel \
-    pwgen \
-    restic \
-    ripgrep \
-    skopeo \
-    socat \
-    sqlite \
-    vim \
-    zoxide \
-    zsh
-
-# Install editors
-dnf -y install --setopt=install_weak_deps=False \
-      helix \
-      helix-parsers \
-      helix-themes
-
-dnf -y install \
-    ShellCheck \
-    black \
-    clang-format \
-    copr-cli \
-    createrepo_c \
-    g++ \
-    gcc \
-    intltool \
-    json-glib-devel \
-    meson \
-    pylint \
-    python3-dateparser \
-    python3-pip \
-    python3-rust2rpm \
-    ruff \
-    source-foundry-hack-fonts \
-    yamllint
-
-dnf -y install \
-    erofs-utils
-
-dnf -y install \
-    flatpak-builder \
-    --exclude=adobe-source-code-pro-fonts,glib-networking,low-memory-monitor,memstrack,p11-kit-server,pipewire,tpm2-tools,xdg-desktop-portal
-
-dnf -y install \
-    fbrnch \
-    fedpkg \
-    --exclude=podman,btrfs-progs
-
-dnf -y install \
-    go \
-    --exclude=mercurial,subversion
-
-dnf -y install \
-    reuse \
-    --exclude=mercurial,dpkg-dev,python3-apt
-
-dnf -y install \
-    butane \
-    coreos-installer \
-    ignition-validate
-
-dnf -y install \
-    ImageMagick \
-    brotli \
-    dejavu-sans-fonts \
-    dejavu-sans-mono-fonts \
-    graphviz \
-    npm \
-    pandoc \
-    pdf-stapler \
-    qrencode \
-    ruby \
-    ruby-devel \
-    rubygem-bundler \
-    --exclude=adobe-source-code-pro-fonts,logrotate,low-memory-monitor,nodejs-docs,pipewire,tracker,tracker-miners,upower,xdg-desktop-portal-gtk
-
-dnf -y install \
-    openssl-devel \
-    perl-FindBin \
-    perl-IPC-Cmd \
-    perl-File-Compare
-
-dnf -y install \
-  virt-install
-
-# Enable Terra community repository and install Typst
-dnf -y install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release terra-gpg-keys
-dnf -y install \
-    typst
+# Install packages
+dnf -y install "${packages[@]}"
+dnf -y install --enable-repo=terra "${packages_terra[@]}"
+dnf -y install --enable-repo=copr:copr.fedorainfracloud.org:group_testing-farm:stable "${packages_testing_farm[@]}"
 
 # Setup symlink for access to system libvirt
 ln -snf /run/host/run/libvirt /run/libvirt
 
-dnf -y install \
-  tmt \
-  testing-farm
-
-dnf -y install --setopt=install_weak_deps=False \
-  packit
-
+# Remove mlocate, not useful inside an ephemeral container
 dnf -y remove mlocate
 dnf clean all
 
@@ -137,6 +154,7 @@ dnf clean all
 set -euxo pipefail
 bins=(
     "btop"
+    "buildah"
     "code"
     "codium"
     "firefox"
@@ -144,6 +162,7 @@ bins=(
     "htop"
     "podman"
     "rpm-ostree"
+    "skopeo"
     "systemctl"
     "xdg-open"
 );
