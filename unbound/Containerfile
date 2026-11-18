@@ -123,13 +123,16 @@ done
 EORUN
 
 # Rechunk
-FROM quay.io/coreos/chunkah AS chunkah
-RUN --mount=from=builder,src=/output,target=/chunkah,ro \
-    --mount=type=bind,target=/run/src,rw \
-        chunkah build --prune /var/cache/libdnf5 \
-            > /run/src/out.ociarchive
+# FROM quay.io/coreos/chunkah AS chunkah
+# RUN --mount=from=builder,src=/output,target=/chunkah,ro \
+#     --mount=type=bind,target=/run/src,rw \
+#         chunkah build --prune /var/cache/libdnf5 \
+#             > /run/src/out.ociarchive
 
 # Final image
-FROM oci-archive:out.ociarchive
+# FROM oci-archive:out.ociarchive
+FROM scratch
+COPY --from=builder /output /
+
 USER unbound
 CMD ["/usr/sbin/unbound"]

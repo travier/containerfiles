@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Timothée Ravier <tim@siosm.fr>
 # SPDX-License-Identifier: MIT OR CC0-1.0
 
-FROM registry.fedoraproject.org/fedora-toolbox:45 as builder
+FROM registry.fedoraproject.org/fedora-toolbox:45
 
 # - Install common tools
 # - Install cloud command line tools
@@ -81,10 +81,10 @@ sed -i '/clear/d' /etc/zlogout
 EORUN
 
 # Rechunk
-FROM quay.io/coreos/chunkah AS chunkah
-RUN --mount=from=builder,src=/,target=/chunkah,ro \
-    --mount=type=bind,target=/run/src,rw \
-        chunkah build > /run/src/out.ociarchive
+# FROM quay.io/coreos/chunkah AS chunkah
+# RUN --mount=from=builder,src=/,target=/chunkah,ro \
+#     --mount=type=bind,target=/run/src,rw \
+#         chunkah build > /run/src/out.ociarchive
 
 # Final image
-FROM oci-archive:out.ociarchive
+# FROM oci-archive:out.ociarchive
